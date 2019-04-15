@@ -152,12 +152,16 @@ func (p *process) run() {
 		case ActionClose:
 			return
 		case ActionCascade:
+			if p.sup == nil {
+				panic("the root geordi.Process has nothing to cascade to")
+			}
+
 			p.sup.Process().Cancel()
 			return
 		case ActionPass:
-			panic("encountered ActionPass at the end of a response chain; no responders left to pass to")
+			panic("geordi.Process encountered ActionPass at the end of a response chain; no responders left to pass to")
 		default:
-			panic(fmt.Sprintf("encountered unknown Action value %v", action))
+			panic(fmt.Sprintf("geordi.Process encountered unknown Action value %v", action))
 		}
 	}
 }
