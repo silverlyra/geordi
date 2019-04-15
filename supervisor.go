@@ -25,7 +25,7 @@ type supervisor struct {
 }
 
 // New returns a Task that runs a Supervisor.
-func New(options ...SupervisorOption) Task {
+func New(options ...func(Supervisor)) Task {
 	return func(ctx context.Context) error {
 		sup := &supervisor{
 			self:      Self(ctx),
@@ -102,13 +102,14 @@ func (s *supervisor) shutdown() {
 	}
 }
 
-// SupervisorOption configures a Supervisor
-type SupervisorOption func(*supervisor)
-
 // Defaults sets default options for Processes run under a Supervisor.
-func Defaults(options ...Option) SupervisorOption {
-	return func(sup *supervisor) {
-		sup.defaults = append(sup.defaults, options...)
+func Defaults(options ...Option) func(Supervisor) {
+	return func(sup Supervisor) {
+		if s, ok := sup.(*supervisor); ok {
+			s.defaults = append(s.defaults, options...)
+		}
+
+		panic("geordi.Defaults can only be applied to a *geordi.supervisor")
 	}
 }
 
